@@ -1,0 +1,121 @@
+ _____________________________________________________________________________
+/                                                                             \
+| Chirpy! v0.4                                                     YYYY-MM-DD |
+\_____________________________________________________________________________/
+
+* Allowing UTF-8 in quote tags--thanks, Hao
+* Made session manager not rely on Perl's flaky destructor implementation
+* Added finalize() procedure to UI interface
+* Added UTF-8 table collations to MySQL data manager 
+
+ _____________________________________________________________________________
+/                                                                             \
+| Chirpy! v0.3                                                     2007-02-09 |
+\_____________________________________________________________________________/
+
+* Added statistics page
+* Users can now revert their vote if, for example, they accidentally clicked
+  on the wrong link
+* Now keeping (and displaying) vote counts per quote
+* Radically changed order of top and bottom quotes, by introducing quote
+  scores: score = (positive votes + 1) / (negative votes + 1), as suggested by
+  sp3000 at irc.mozilla.org #bs on 2006-10-28
+* Added metadata-based logging, including search
+* Made rating and reporting links use POST instead of GET and added
+  intermediate confirmation page for non-AJAX users
+* Added microsummaries
+* You can now edit quotes before approving them
+* Added wildcard searching
+* Made tag cloud ignore unapproved quotes
+* Tag cloud can now use logarithmic calculation, to make tag use distribution
+  appear more even
+* Added dynamic tag cloud pruning based on number of quotes
+* Administrative interface now only displays tabs that are available
+* Improved and simplified captcha support; added preliminary support for
+  GD::SecurityImage as an alternative for Authen::Captcha; to enable captchas,
+  simply webapp.captcha_provider=Authen_Captcha should suffice
+* Made pages point to their own feeds instead of QotW (where applicable)
+* Added description field in chirpy.ini, for use in feeds
+* Made quote titles in feeds more meaningful
+* Put page title in feed title instead of subtitle
+* Improved feed modification detection
+* Made templates use HTML::Template's caching feature, which is pretty fast
+* Template parameters are now global, which means you can include parameters
+  from outside a loop
+* Renamed template parameters for search form; they are now always available
+  and the default theme includes a search form with search results
+* Optimized template parsing a little
+* Moved administration-related subs to a separate class, speeding up non-admin
+  pages somewhat
+* Extended quick style linking method: <> is now omitted and link text can be
+  changed by separating it from URL by whitespace, e.g.
+    Surf to <http://chirpy.sourceforge.net/ The Chirpy! web site>!
+* Simplified RSS feed: using HTML in <description> and removing
+  <content:encoded> and <xhtml:body>, making feedvalidator.org like it more
+* Added tags as categories in feeds
+* Made check for expired sessions a lot faster
+* News body on start page is now divided into paragraphs; opening and closing
+  tag are included, so update your templates
+* Bugfix: live rating no longer throws a JavaScript error in IE
+* Bugfix: quote rating up log entry now includes quote ID (#1493589)
+* Just for fun, quote IDs can now be in binary and hex notation too, as per
+  <http://quotes.burntelectrons.org/844>
+
+ _____________________________________________________________________________
+/                                                                             \
+| Chirpy! v0.2                                                     2006-05-02 |
+\_____________________________________________________________________________/
+
+* Fixed SQL injection vulnerabilities
+* Fixed logging of author when editing or removing news items (#1289047)
+* Added on-the-fly gzip compression to Chirpy::UI::WebApp--webapp.enable_gzip=1
+  in your configuration file enables it
+* Added optional captcha image to Chirpy::UI::WebApp's quote submission page
+* Added quote tagging
+* Made search query Google-style and added tag: prefix for searching for quotes
+  with a certain tag
+* Made top and bottom quotes browsable
+* Added periodic update check (site owners only)
+* Made ui.quotes_per_page apply to random, top and bottom quotes instead of
+  individual setting per page type
+* Added webapp.quotes_per_feed to set maximum number of quotes in feeds
+  individually
+* Made Atom 1.0 feed valid by adding feed ID and webmaster name. Webmaster name
+  must be configured as webapp.webmaster_name
+* Added quote_count method to Chirpy::DataManager and APPROVED_QUOTE_COUNT,
+  UNAPPROVED_QUOTE_COUNT, and TOTAL_QUOTE_COUNT to templates
+* Added mass quote approval and unflagging to Chirpy::UI::WebApp's
+  administration section
+* Changed Chirpy::DataManager's API so add_* methods set IDs
+* Added option to automatically turn URLs and e-mail addresses in quotes into
+  hyperlinks
+* Made Chirpy::UI::WebApp escape all e-mail addresses to prevent spam
+* Made Chirpy::UI::WebApp replace sequences of whitespaces with &#xA0; instead
+  of &nbsp;, so the Atom feed remains valid
+* Made quote reporting require session information to prevent false positives
+  from crawlers
+* Fixed sub account_count in Chirpy::DataManager::MySQL; removing accounts now
+  works again
+* Optimized fetching single quote in Chirpy::DataManager::MySQL
+* Made Chirpy::UI::WebApp::Session automatically remove expired sessions every
+  24 hours; util/remove_expired_sessions.pl is now obsolete
+* Fixed US English (and Dutch) locale: quote_submission_thanks_administrator is
+  now quote_submission_thanks_no_approval
+* Extended feed templates with a couple of variables and added rating and
+  report URLs as well as notes to the default templates
+* Replaced feed templates' CSS with legacy HTML
+* Cosmetic fixes to Chirpy::UI::WebApp's live rating system
+* Mentioned Chirpy::UI::WebApp::Session::DataManager in Chirpy::DataManager's
+  documentation
+* Cosmetic fix in Account Manager: space after New Account
+* Replaced table for vertical split on start page with divs
+* No longer overriding old onunload function in style switcher
+* Added some debugging features
+* Added changelog.txt
+
+ _____________________________________________________________________________
+/                                                                             \
+| Chirpy! v0.1                                                     2005-09-12 |
+\_____________________________________________________________________________/
+
+* First official release
