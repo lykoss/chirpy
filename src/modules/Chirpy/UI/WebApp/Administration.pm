@@ -162,6 +162,8 @@ sub output {
 			=> $event_log_allowed,
 		'VIEW_EVENT_LOG_NOT_ALLOWED_HTML'
 			=> sub { return $self->get_access_disallowed_html() },
+		'CHANGE_PASSWORD_ALLOWED'
+			=> $self->parent()->is_chirpy_user(),
 		'CHANGE_PASSWORD' => &_text_to_xhtml(
 			$locale->get_string('change_password')),
 		'CHANGE_PASSWORD_HTML'
@@ -835,7 +837,7 @@ sub _serve_event_log_table_data {
 	$start = 0 unless (defined $start && $start >= 0);
 	my $desc = ($self->parent()->_cgi_param('asc') ? 0 : 1);
 	my $user = $self->parent()->_cgi_param('user');
-	$user = undef if (defined $user && $user !~ /^\d+$/);	
+	$user = undef if (defined $user && $user !~ /^-?\d+$/);	
 	my $event = $self->parent()->_cgi_param('code');
 	$event = undef if (defined $event && $event !~ /^\d+$/);
 	my $filter = $self->parent()->_cgi_param('data');

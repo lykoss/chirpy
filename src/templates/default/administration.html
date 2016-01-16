@@ -22,8 +22,8 @@
 		href="#manage-quotes" id="tab-manage-quotes"><TMPL_VAR NAME="MANAGE_QUOTES"></a></li></TMPL_IF><TMPL_IF NAME="MANAGE_NEWS_ALLOWED"><li><a
 		href="#manage-news" id="tab-manage-news"><TMPL_VAR NAME="MANAGE_NEWS"></a></li></TMPL_IF><TMPL_IF NAME="VIEW_EVENT_LOG_ALLOWED"><li><a
 		href="#view_event_log" id="tab-view-event-log"><TMPL_VAR NAME="VIEW_EVENT_LOG"></a></li></TMPL_IF><TMPL_IF NAME="MANAGE_ACCOUNTS_ALLOWED"><li><a
-		href="#manage_accounts" id="tab-manage-accounts"><TMPL_VAR NAME="MANAGE_ACCOUNTS"></a></li></TMPL_IF><li><a
-		href="#change-password" id="tab-change-password"><TMPL_VAR NAME="CHANGE_PASSWORD"></a></li></ul>
+		href="#manage_accounts" id="tab-manage-accounts"><TMPL_VAR NAME="MANAGE_ACCOUNTS"></a></li></TMPL_IF><TMPL_IF NAME="CHANGE_PASSWORD_ALLOWED"><li><a
+		href="#change-password" id="tab-change-password"><TMPL_VAR NAME="CHANGE_PASSWORD"></a></li></TMPL_IF></ul>
 	<ul id="admin-contents" class="tabbed-pane-contents"><TMPL_IF NAME="APPROVE_QUOTES_ALLOWED">
 		<li id="approve-quotes">
 			<h3 class="tab-title"><TMPL_VAR NAME="APPROVE_QUOTES"></h3>
@@ -43,10 +43,10 @@
 		</li></TMPL_IF><TMPL_IF NAME="MANAGE_ACCOUNTS_ALLOWED"><li id="manage-accounts">
 			<h3 class="tab-title"><TMPL_VAR NAME="MANAGE_ACCOUNTS"></h3>
 			<TMPL_VAR NAME="MANAGE_ACCOUNTS_HTML">
-		</li></TMPL_IF><li id="change-password">
+		</li></TMPL_IF><TMPL_IF NAME="CHANGE_PASSWORD_ALLOWED"><li id="change-password">
 			<h3 class="tab-title"><TMPL_VAR NAME="CHANGE_PASSWORD"></h3>
 			<TMPL_VAR NAME="CHANGE_PASSWORD_HTML">
-		</li></ul>
+		</li></TMPL_IF></ul>
 	<script type="text/javascript">initializeTabbedPane('admin'
 		<TMPL_IF NAME="ACTION_IS_QUOTE_FLAGS"   >, document.getElementById('tab-flagged-quotes')</TMPL_IF>
 		<TMPL_IF NAME="ACTION_IS_QUOTE_EDIT"    >, document.getElementById('tab-manage-quotes')</TMPL_IF>

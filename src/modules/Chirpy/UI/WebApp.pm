@@ -2142,6 +2142,7 @@ sub _process_template {
 		if ($self->moderation_queue_is_public());
 	if (my $account = $self->get_logged_in_user_account()) {
 		$template->param('LOGGED_IN' => 1);
+		$template->param('CHIRPY_USER' => ($account->get_id() > 0));
 		$template->param('LOGGED_IN_NOTICE' => &_text_to_xhtml(
 			$locale->get_string(
 				'logged_in_as', $account->get_username(),

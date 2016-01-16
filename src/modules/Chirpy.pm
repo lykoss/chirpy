@@ -367,6 +367,7 @@ sub new {
 		? $dm_override : $configuration->get('data', 'type');
 	$self->{'data_manager_type'} = $dm_type;
 	my $dm_params = $configuration->get_parameter_hash('data', $dm_type);
+	$dm_params->{'conf'} = $configuration;
 	$self->mark_debug_event('Create data manager');
 	my $dm = &_create_data_manager($dm_type, $dm_params);
 	$self->mark_debug_event('Data manager created');
@@ -651,8 +652,45 @@ sub get_accounts_by_level {
 sub get_account_by_id {
 	my ($self, $id) = @_;
 	return undef unless (defined $id);
-	my $accounts = $self->_data_manager()->get_accounts({ 'id' => $id });
-	return (defined $accounts ? $accounts->[0] : undef);
+	if ($id < 0) {
+		# get details of SSO account
+		require LWP::UserAgent;
+		require HTTP::Request;
+		require JSON;
+		my $conf = $self->configuration();
+		my $wikiApi = $conf->get('sso', 'api.url');
+		my $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 1 });
+		$ua->agent("ChirpySSO/1.0.0");
+		my $req = HTTP::Request->new(GET => $wikiApi . '?action=userinfo&format=json&ui_user=' . -$id);	
+		my $resp = $ua->request($req);
+		if ($resp->is_success) {
+			my $json = JSON->new->utf8;
+			my $user = $json->decode($resp->content);
+			if ($user->{'userinfo'}->{'id'} > 0) {
+				my $level = 0;
+				if ($conf->get('sso', 'group.owner') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+					$level = 9;
+				}
+				elsif ($conf->get('sso', 'group.administrator') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+					$level = 6;
+				}
+				elsif ($conf->get('sso', 'group.moderator') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+					$level = 3;
+				}
+
+				return Chirpy::Account->new(
+					-$user->{'userinfo'}->{'id'}, # negative id corresponds to wiki id
+					$user->{'userinfo'}->{'name'},
+					undef, # password (unused)
+					$level
+				);
+			}
+		}
+	}
+	else {
+		my $accounts = $self->_data_manager()->get_accounts({ 'id' => $id });
+		return (defined $accounts ? $accounts->[0] : undef);
+	}
 }
 
 sub get_account_by_username {

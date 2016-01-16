@@ -720,11 +720,33 @@ sub get_news_items {
 	$self->_db_error() unless (defined $rows);
 	my @result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
+		my $poster;
+		if ($row->{'poster'} < 0) {
+			# posted by SSO user
+			require LWP::UserAgent;
+			require HTTP::Request;
+			require JSON;
+			my $conf = $self->param('conf');
+			my $wikiApi = $conf->get('sso', 'api.url');
+			my $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 1 });
+			$ua->agent("ChirpySSO/1.0.0");
+			my $req = HTTP::Request->new(GET => $wikiApi . '?action=userinfo&format=json&ui_user=' . -$row->{'poster'});	
+			my $resp = $ua->request($req);
+			if ($resp->is_success) {
+				my $json = JSON->new->utf8;
+				my $user = $json->decode($resp->content);
+				if ($user->{'userinfo'}->{'id'} > 0) {
+					$poster = new Chirpy::Account($row->{'poster'}, $user->{'userinfo'}->{'name'});
+				}
+			}
+		}
+		elsif ($row->{'username'}) {
+			$poster = new Chirpy::Account($row->{'poster'}, $row->{'username'});
+		}
 		my $item = new Chirpy::NewsItem(
-			$row->{'id'}, Chirpy::Util::decode_utf8($row->{'body'}),
-			($row->{'username'}
-				? new Chirpy::Account($row->{'poster'}, $row->{'username'})
-				: undef),
+			$row->{'id'},
+			Chirpy::Util::decode_utf8($row->{'body'}),
+			$poster,
 			$row->{'date'}
 		);
 		push @result, $item;

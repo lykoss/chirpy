@@ -1146,6 +1146,62 @@ sub get_news_posters {
 sub get_logged_in_user_account {
 	my $self = shift;
 	my $id = $self->get_logged_in_user();
+	if (!defined $id) {
+		# SSO with the wiki
+		require LWP::UserAgent;
+		require HTTP::Request;
+		require HTTP::Cookies;
+		require JSON;
+		my $cgi = $self->{'cgi'};
+		my $conf = $self->configuration();
+		my $prefix = $conf->get('sso', 'cookie.prefix');
+		my $domain = $conf->get('sso', 'cookie.domain');
+		my $wikiSession = $cgi->cookie(-name => $prefix . '_session');
+		my $wikiUser = $cgi->cookie(-name => $prefix . 'UserID');
+		my $wikiToken = $cgi->cookie(-name => $prefix . 'Token');
+		if (defined $wikiSession && defined $wikiUser && defined $wikiToken) {
+			# Query the wiki API to validate our session and get user groups
+			# (groups determine permission level => sysop = 3, bureaucrat = 6)
+			my $wikiApi = $conf->get('sso', 'api.url');
+			my $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 1 });
+			$ua->agent("ChirpySSO/1.0.0");
+			my $req = HTTP::Request->new(GET => $wikiApi . '?action=userinfo&format=json');
+			my $cookies = HTTP::Cookies->new;
+			$cookies->set_cookie(0, $prefix . '_session', $wikiSession, '/', $domain);
+			$cookies->set_cookie(0, $prefix . 'UserID', $wikiUser, '/', $domain);
+			$cookies->set_cookie(0, $prefix . 'Token', $wikiToken, '/', $domain);
+			$ua->cookie_jar($cookies);
+			my $resp = $ua->request($req);
+			$cookies->clear();
+			if ($resp->is_success) {
+				my $json = JSON->new->utf8;
+				my $user = $json->decode($resp->content);
+				if ($user->{'userinfo'}->{'id'} > 0) {
+					# have a logged in user, return it if it has privs
+					my $level = 0;
+					if ($conf->get('sso', 'group.owner') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+						$level = 9;
+					}
+					elsif ($conf->get('sso', 'group.administrator') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+						$level = 6;
+					}
+					elsif ($conf->get('sso', 'group.moderator') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+						$level = 3;
+					}
+
+					if ($level > 0) {
+						return Chirpy::Account->new(
+							-$user->{'userinfo'}->{'id'}, # negative id corresponds to wiki id
+							$user->{'userinfo'}->{'name'},
+							undef, # password (unused)
+							$level
+						);
+					}
+				}
+			}
+		}
+	}
+
 	return (defined $id
 		? $self->parent()->get_account_by_id($id)
 		: undef);
@@ -1158,6 +1214,13 @@ sub administration_allowed {
 	return 0 unless defined $user;
 	my $level = $user->get_level();
 	return ADMIN_PERMISSIONS->{$action}{$level};
+}
+
+sub is_chirpy_user {
+	my $self = shift;
+	my $user = $self->get_logged_in_user_account();
+	return 0 unless defined $user;
+	return $user->get_id() > 0;
 }
 
 sub get_parameter {
