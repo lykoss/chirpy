@@ -1179,13 +1179,17 @@ sub get_logged_in_user_account {
 				if ($user->{'userinfo'}->{'id'} > 0) {
 					# have a logged in user, return it if it has privs
 					my $level = 0;
-					if ($conf->get('sso', 'group.owner') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+					my $override = $conf->get('sso', 'override.' . $user->{'userinfo'}->{'id'});
+					if (defined $override) {
+						$level = $override;
+					}
+					elsif ((grep { $conf->get('sso', 'group.owner') eq $_ } @{$user->{'userinfo'}->{'effectiveGroups'}}) >= 1) {
 						$level = 9;
 					}
-					elsif ($conf->get('sso', 'group.administrator') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+					elsif ((grep { $conf->get('sso', 'group.administrator') eq $_ } @{$user->{'userinfo'}->{'effectiveGroups'}}) >= 1) {
 						$level = 6;
 					}
-					elsif ($conf->get('sso', 'group.moderator') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+					elsif ((grep { $conf->get('sso', 'group.moderator') eq $_ } @{$user->{'userinfo'}->{'effectiveGroups'}}) >= 1) {
 						$level = 3;
 					}
 

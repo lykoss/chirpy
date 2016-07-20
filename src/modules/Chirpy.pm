@@ -668,13 +668,17 @@ sub get_account_by_id {
 			my $user = $json->decode($resp->content);
 			if ($user->{'userinfo'}->{'id'} > 0) {
 				my $level = 0;
-				if ($conf->get('sso', 'group.owner') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+				my $override = $conf->get('sso', 'override.' . $user->{'userinfo'}->{'id'});
+				if (defined $override) {
+					$level = $override;
+				}
+				elsif ((grep { $conf->get('sso', 'group.owner') eq $_ } @{$user->{'userinfo'}->{'effectiveGroups'}}) >= 1) {
 					$level = 9;
 				}
-				elsif ($conf->get('sso', 'group.administrator') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+				elsif ((grep { $conf->get('sso', 'group.administrator') eq $_ } @{$user->{'userinfo'}->{'effectiveGroups'}}) >= 1) {
 					$level = 6;
 				}
-				elsif ($conf->get('sso', 'group.moderator') ~~ $user->{'userinfo'}->{'effectiveGroups'}) {
+				elsif ((grep { $conf->get('sso', 'group.moderator') eq $_ } @{$user->{'userinfo'}->{'effectiveGroups'}}) >= 1) {
 					$level = 3;
 				}
 
