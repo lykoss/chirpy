@@ -843,7 +843,9 @@ sub _generate_xhtml {
 	);
 	my %previous_rating = ();
 	foreach my $rated ($self->get_rated_quotes()) {
-		$previous_rating{abs($rated)} = ($rated < 0 ? -1 : 1);
+		if (defined($rated)) {
+			$previous_rating{abs($rated)} = ($rated < 0 ? -1 : 1);
+		}
 	}
 	my @quotes_tmpl = ();
 	$self->parent()->mark_debug_event('Parse quotes for template');
