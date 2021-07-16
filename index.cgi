@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perlml
 
 ###############################################################################
 # Chirpy!, a quote management system                                          #
