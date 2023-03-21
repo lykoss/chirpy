@@ -1176,7 +1176,7 @@ sub get_logged_in_user_account {
 			if ($resp->is_success) {
 				my $json = JSON->new->utf8;
 				my $user = $json->decode($resp->content);
-				if ($user->{'userinfo'}->{'id'} > 0) {
+				if (defined $user && $user->{'userinfo'}->{'id'} > 0) {
 					# have a logged in user, return it if it has privs
 					my $level = 0;
 					my $override = $conf->get('sso', 'override.' . $user->{'userinfo'}->{'id'});

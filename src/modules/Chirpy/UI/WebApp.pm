@@ -2397,7 +2397,7 @@ sub _cgi_params {
 
 sub _cgi_param {
 	my ($self, $param) = @_;
-	return $self->{'cgi'}->param($param);
+	return scalar($self->{'cgi'}->param($param));
 }
 
 sub _url_params {
