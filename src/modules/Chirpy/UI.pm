@@ -1159,7 +1159,7 @@ sub get_logged_in_user_account {
 		my $wikiSession = $cgi->cookie(-name => $prefix . '_session');
 		my $wikiUser = $cgi->cookie(-name => $prefix . 'UserID');
 		my $wikiToken = $cgi->cookie(-name => $prefix . 'Token');
-		if (defined $wikiSession && defined $wikiUser && defined $wikiToken) {
+		if (defined $wikiSession && defined $wikiUser) {
 			# Query the wiki API to validate our session and get user groups
 			# (groups determine permission level => sysop = 3, bureaucrat = 6)
 			my $wikiApi = $conf->get('sso', 'api.url');
@@ -1169,7 +1169,9 @@ sub get_logged_in_user_account {
 			my $cookies = HTTP::Cookies->new;
 			$cookies->set_cookie(0, $prefix . '_session', $wikiSession, '/', $domain);
 			$cookies->set_cookie(0, $prefix . 'UserID', $wikiUser, '/', $domain);
-			$cookies->set_cookie(0, $prefix . 'Token', $wikiToken, '/', $domain);
+			if (defined $wikiToken) {
+				$cookies->set_cookie(0, $prefix . 'Token', $wikiToken, '/', $domain);
+			}
 			$ua->cookie_jar($cookies);
 			my $resp = $ua->request($req);
 			$cookies->clear();
